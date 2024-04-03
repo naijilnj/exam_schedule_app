@@ -1,5 +1,5 @@
 # shared.py
-
+import streamlit as st
 from pymongo import MongoClient
 
 # Initialize MongoDB client
@@ -34,3 +34,13 @@ def load_schedule_data():
 
 # List of departments
 DEPARTMENTS = ["IT", "CS", "BCA", "BBA", "BMS"]
+
+# Function to set authenticated status and store user details
+def set_authenticated(email, department):
+    # Here you can implement the logic to set authenticated status
+    # and store user details, such as in a session state or database
+    # For example, you can use session state like this:
+    st.session_state.authenticated = True
+    st.session_state.email = email
+    st.session_state.department = department
+
