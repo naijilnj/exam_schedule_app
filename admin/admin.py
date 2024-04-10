@@ -36,8 +36,9 @@ def admin_main():
         exam_name = st.text_input("Name of the Exam")
         exam_date = st.date_input("Date of the Exam")
         department = st.selectbox("Select Department", shared.DEPARTMENTS)
+        semester = st.selectbox("Select Semester", ["Sem 1", "Sem 2", "Sem 3", "Sem 4", "Sem 5", "Sem 6"])
         if st.button("Upload"):
-            shared.save_schedule_data(exam_name, exam_date, department)  # Call save_schedule_data function
+            shared.save_schedule_data(exam_name, exam_date, department, semester)  # Call save_schedule_data function
             st.success("Schedule Uploaded Successfully!")
 
     elif option == "View Schedule":
