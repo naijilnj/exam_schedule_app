@@ -14,6 +14,7 @@ collection = db["exam_schedule"]  # Replace "exam_schedule" with your actual col
 
 def save_schedule_data(exam_name, exam_date, department, semester):
     try:
+        print("Attempting to save schedule data to MongoDB...")
         # Convert exam_date to datetime object
         exam_date = datetime.combine(exam_date, datetime.min.time())
 
@@ -24,6 +25,7 @@ def save_schedule_data(exam_name, exam_date, department, semester):
             "department": department,
             "semester": semester
         })
+        print("Schedule data saved successfully!")
     except Exception as e:
         print("Error saving schedule data to MongoDB:", e)
 
