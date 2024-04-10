@@ -52,7 +52,7 @@ def admin_main():
         if st.button("Upload"):
             shared.save_schedule_data(exam_name, exam_date, department, semester)  # Call save_schedule_data function
             st.success("Schedule Uploaded Successfully!")
-            view_schedule()  # View updated schedule after upload
+            st.experimental_rerun()  # Refresh the page after successful upload
 
     elif option == "View Schedule":
         view_schedule()
