@@ -1,15 +1,6 @@
 import streamlit as st
 import pandas as pd
 import shared
-import requests
-
-def get_external_ip():
-    response = requests.get("https://api64.ipify.org?format=json")
-    if response.status_code == 200:
-        data = response.json()
-        return data.get("ip")
-    else:
-        return "Unknown"
 
 # Admin credentials
 ADMIN_USERNAME = "admin"
@@ -61,7 +52,7 @@ def admin_main():
         if st.button("Upload"):
             shared.save_schedule_data(exam_name, exam_date, department, semester)  # Call save_schedule_data function
             st.success("Schedule Uploaded Successfully!")
-            st.rerun()  # Refresh the page after successful upload
+            view_schedule()  # View updated schedule after upload
 
     elif option == "View Schedule":
         view_schedule()
