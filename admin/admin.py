@@ -10,6 +10,18 @@ ADMIN_PASSWORD = "password"
 def admin_authentication(username, password):
     return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
 
+# Function to view schedule
+def view_schedule():
+    schedule_data = shared.load_schedule_data()
+    if schedule_data:
+        st.write("Uploaded Schedule:")
+        df = pd.DataFrame(schedule_data)
+        df['date'] = pd.to_datetime(df['date'])  # Convert date column to datetime
+        df['date'] = df['date'].dt.strftime('%d/%m/%Y')  # Format date as Day/Month/Year
+        st.table(df[::-1].reset_index(drop=True))  # Display DataFrame as a table
+    else:
+        st.write("No schedule uploaded yet.")
+
 # Admin page
 def admin_page():
     st.title("Admin Page")
@@ -40,17 +52,10 @@ def admin_main():
         if st.button("Upload"):
             shared.save_schedule_data(exam_name, exam_date, department, semester)  # Call save_schedule_data function
             st.success("Schedule Uploaded Successfully!")
+            view_schedule()  # View updated schedule after upload
 
     elif option == "View Schedule":
-        schedule_data = shared.load_schedule_data()
-        if schedule_data:
-            st.write("Uploaded Schedule:")
-            df = pd.DataFrame(schedule_data)
-            df['date'] = pd.to_datetime(df['date'])  # Convert date column to datetime
-            df['date'] = df['date'].dt.strftime('%d/%m/%Y')  # Format date as Day/Month/Year
-            st.table(df[::-1].reset_index(drop=True))  # Display DataFrame as a table
-        else:
-            st.write("No schedule uploaded yet.")
+        view_schedule()
 
 def main():
     if 'authenticated' not in st.session_state:
