@@ -12,13 +12,14 @@ db = client["students_logindetails"]  # Replace "students_logindetails" with you
 collection = db["exam_schedule"]  # Replace "exam_schedule" with your actual collection name
 
 # Function to save schedule data to MongoDB
-def save_schedule_data(exam_name, exam_date, department):
+def save_schedule_data(exam_name, exam_date, department, semester):
     try:
         # Insert the schedule data into the collection
         collection.insert_one({
             "name": exam_name,
             "date": str(exam_date),
-            "department": department
+            "department": department,
+            "semester": semester
         })
     except Exception as e:
         print("Error saving schedule data to MongoDB:", e)
@@ -36,11 +37,11 @@ def load_schedule_data():
 DEPARTMENTS = ["IT", "CS", "BCA", "BBA", "BMS"]
 
 # Function to set authenticated status and store user details
-def set_authenticated(email, department):
+def set_authenticated(email, department, semester):
     # Here you can implement the logic to set authenticated status
     # and store user details, such as in a session state or database
     # For example, you can use session state like this:
     st.session_state.authenticated = True
     st.session_state.email = email
     st.session_state.department = department
-
+    st.session_state.semester = semester
