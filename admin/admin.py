@@ -1,70 +1,57 @@
 import streamlit as st
+from shared import connect_to_mongodb
+from datetime import datetime
 import pandas as pd
-import shared
 
-# Admin credentials
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "password"
+def upload_schedule(collection):
+    st.title("Upload Exam Schedule")
 
-# Function for admin authentication
-def admin_authentication(username, password):
-    return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
+    exam_name = st.text_input("Exam Name")
+    exam_date = st.date_input("Select Date of Exam", min_value=datetime.today())
+    
+    # Convert date to datetime
+    exam_date = datetime.combine(exam_date, datetime.min.time())
 
-# Function to view schedule
-def view_schedule():
-    schedule_data = shared.load_schedule_data()
-    if schedule_data:
-        st.write("Uploaded Schedule:")
-        df = pd.DataFrame(schedule_data)
-        df['date'] = pd.to_datetime(df['date'])  # Convert date column to datetime
-        df['date'] = df['date'].dt.strftime('%d/%m/%Y')  # Format date as Day/Month/Year
-        st.table(df[::-1].reset_index(drop=True))  # Display DataFrame as a table
-    else:
-        st.write("No schedule uploaded yet.")
+    # Dropdown menu for department selection
+    departments = ["IT", "CS", "BCA", "BBA", "BMS"]
+    department = st.selectbox("Department", departments)
 
-# Admin page
-def admin_page():
-    st.title("Admin Page")
+    # Dropdown menu for semester selection
+    semesters = ["Sem 1", "Sem 2", "Sem 3", "Sem 4", "Sem 5"]
+    semester = st.selectbox("Semester", semesters)
 
-    # Admin authentication
-    st.header("Admin Authentication")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        if admin_authentication(username, password):
-            st.session_state.authenticated = True
-            st.success("Logged in successfully!")
-            admin_main()
-        else:
-            st.error("Invalid username or password")
+    if st.button("Upload"):
+        schedule_data = {
+            "exam_name": exam_name,
+            "exam_date": exam_date,
+            "department": department,
+            "semester": semester
+        }
+        collection.insert_one(schedule_data)
+        st.success("Schedule uploaded successfully!")
 
-# Admin dashboard
-def admin_main():
-    st.title("Admin Dashboard")
-    st.sidebar.title("Options")
-    option = st.sidebar.radio("Select Option", ("Upload Schedule", "View Schedule"))
-
-    if option == "Upload Schedule":
-        exam_name = st.text_input("Name of the Exam")
-        exam_date = st.date_input("Date of the Exam")
-        department = st.selectbox("Select Department", shared.DEPARTMENTS)
-        semester = st.selectbox("Select Semester", ["Sem 1", "Sem 2", "Sem 3", "Sem 4", "Sem 5", "Sem 6"])
-        if st.button("Upload"):
-            shared.save_schedule_data(exam_name, exam_date, department, semester)  # Call save_schedule_data function
-            st.success("Schedule Uploaded Successfully!")
-            view_schedule()  # View updated schedule after upload
-
-    elif option == "View Schedule":
-        view_schedule()
+def view_recent_schedule(collection):
+    st.sidebar.title("Admin Menu")
+    page = st.sidebar.radio("Navigation", ["Upload Schedule", "View Schedule"])
+    
+    if page == "Upload Schedule":
+        upload_schedule(collection)
+    elif page == "View Schedule":
+        st.title("View Exam Schedule")
+        schedule_data = collection.find({}, {"_id": 0}).sort("exam_date", -1)
+        df = pd.DataFrame(list(schedule_data))
+        
+        # Format the date column to remove time
+        df['exam_date'] = df['exam_date'].dt.strftime('%Y-%m-%d')
+        
+        st.table(df)
 
 def main():
-    if 'authenticated' not in st.session_state:
-        st.session_state.authenticated = False
+    st.set_page_config(layout="wide")
+    collection = connect_to_mongodb()  # Get MongoDB collection
 
-    if st.session_state.authenticated:
-        admin_main()
-    else:
-        admin_page()
+    # Sidebar for navigation and recent schedule view
+    view_recent_schedule(collection)
 
 if __name__ == "__main__":
     main()
